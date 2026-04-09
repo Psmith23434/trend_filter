@@ -1,8 +1,8 @@
 # trend_filter
 
 A self-hosted, **zero-cost** trend discovery tool. Scans multiple public sources,
-clusters signals by topic, scores them for commercial opportunity, and generates
-actionable briefs using a **local LLM (Ollama)** — no API keys required.
+clusters signals by topic, scores them for commercial opportunity, and optionally
+generates actionable briefs — no API keys required.
 
 ## Quick Start
 
@@ -10,20 +10,44 @@ actionable briefs using a **local LLM (Ollama)** — no API keys required.
 # 1. Install dependencies
 pip install -r requirements.txt
 
-# 2. Install Ollama (free local LLM)
-# → https://ollama.com/download
-ollama pull llama3
+# 2. Configure environment
+copy .env.example .env
+# SQLite is the default DB — no PostgreSQL needed.
+# LLM is disabled by default (LLM_PROVIDER=none).
 
-# 3. Configure environment
-cp .env.example .env
-# (no keys needed — defaults work out of the box)
-
-# 4. Start the server
+# 3. Start the server
 uvicorn api.main:app --reload
 
-# 5. Trigger a manual scan
+# 4. Trigger a manual scan
 curl -X POST http://localhost:8000/scan
 ```
+
+> **Windows users:** use `copy` instead of `cp` in step 2, or just duplicate the file manually.
+
+## Database
+
+By default the app uses **SQLite** — no install needed. A `trend_filter.db` file
+is created automatically in the project folder on first run.
+
+To use PostgreSQL instead, update `DATABASE_URL` in your `.env`:
+
+```env
+DATABASE_URL=postgresql://postgres:yourpassword@localhost:5432/trend_filter
+```
+
+## LLM (Optional)
+
+Brief generation is **disabled by default** (`LLM_PROVIDER=none`). The pipeline
+still collects, clusters, and scores trends — you just won't get AI-written summaries.
+
+To enable, edit `.env` and set `LLM_PROVIDER`:
+
+| Value | Cost | Requirement |
+|---|---|---|
+| `none` | Free | No setup — briefs skipped |
+| `ollama` | Free | Install [Ollama](https://ollama.com/download) + `ollama pull llama3` |
+| `openai` | ~$0.001/brief | `OPENAI_API_KEY` in `.env` |
+| `anthropic` | ~$0.001/brief | `ANTHROPIC_API_KEY` in `.env` |
 
 ## Architecture
 
@@ -44,7 +68,7 @@ trend_filter/
 │   ├── clusterer.py     # DBSCAN clustering
 │   └── scorer.py        # Weighted scoring
 ├── llm/
-│   └── brief_generator.py  # Ollama / OpenAI / Anthropic
+│   └── brief_generator.py  # Ollama / OpenAI / Anthropic (optional)
 ├── scheduler/
 │   └── jobs.py          # APScheduler pipeline runner
 ├── api/
@@ -62,17 +86,7 @@ trend_filter/
 3. **Embed** — `all-MiniLM-L6-v2` sentence embeddings
 4. **Cluster** — DBSCAN groups similar signals into trends
 5. **Score** — Weighted score (growth, diversity, commercial intent, novelty, persistence)
-6. **Brief** — Local Ollama generates description, why-now, product ideas, urgency
-
-## Switching LLM Provider
-
-Edit `.env` and change `LLM_PROVIDER`:
-
-| Value | Cost | Requirement |
-|---|---|---|
-| `ollama` | Free | Install Ollama + `ollama pull llama3` |
-| `openai` | ~$0.001/brief | `OPENAI_API_KEY` in `.env` |
-| `anthropic` | ~$0.001/brief | `ANTHROPIC_API_KEY` in `.env` |
+6. **Brief** — *(Optional)* LLM generates description, why-now, product ideas, urgency
 
 ## Roadmap
 
