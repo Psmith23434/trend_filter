@@ -11,11 +11,14 @@ from pipeline.normalizer import normalize
 from pipeline.embedder import embed_signals
 from pipeline.clusterer import cluster_signals
 from pipeline.scorer import score_clusters
+from pipeline.classifier import classify_clusters, NICHE_LABELS
 from llm.brief_generator import generate_brief
 
 
 def run_pipeline():
-    print("[Scheduler] Running trend pipeline (no-API mode)...")
+    print("[Pipeline] Starting trend pipeline (no-API mode)...")
+
+    # --- Collect ---
     collectors = [
         RedditFreeCollector(),
         HackerNewsCollector(),
@@ -27,28 +30,46 @@ def run_pipeline():
     ]
     raw = []
     for c in collectors:
-        print(f"  → Collecting from {c.source_name}...")
+        print(f"  → Collecting [{c.source_name}]...")
         raw.extend(c.collect())
 
-    print(f"[Scheduler] {len(raw)} raw signals collected. Normalizing...")
+    print(f"[Pipeline] {len(raw)} raw signals. Normalizing...")
     signals = normalize(raw)
-    print(f"[Scheduler] {len(signals)} signals after dedup. Embedding...")
+    print(f"[Pipeline] {len(signals)} after dedup. Embedding...")
     signals = embed_signals(signals)
-    print("[Scheduler] Clustering...")
+
+    print("[Pipeline] Clustering...")
     clusters = cluster_signals(signals)
-    print(f"[Scheduler] {len(clusters)} clusters found. Scoring...")
+    print(f"[Pipeline] {len(clusters)} clusters. Scoring...")
     clusters = score_clusters(clusters)
 
+    print("[Pipeline] Classifying niches...")
+    clusters = classify_clusters(clusters)
+
+    # --- Brief generation for top 10 ---
     top = clusters[:10]
-    print(f"[Scheduler] Generating briefs for top {len(top)} trends...")
+    print(f"[Pipeline] Generating briefs for top {len(top)} trends...")
     for cluster in top:
         generate_brief(cluster)
-        urgency = (cluster.urgency or "?").upper()
-        print(f"  [{urgency}] {cluster.representative_title} (score={cluster.score:.2f})")
-        for idea in (cluster.product_ideas or []):
-            print(f"    💡 {idea}")
 
-    print(f"[Scheduler] Done.")
+    # --- Print grouped output ---
+    from collections import defaultdict
+    by_niche: dict = defaultdict(list)
+    for c in top:
+        by_niche[c.niche].append(c)
+
+    print("\n" + "="*60)
+    for niche, items in sorted(by_niche.items()):
+        print(f"\n{NICHE_LABELS.get(niche, niche)}")
+        print("-" * 40)
+        for c in items:
+            urgency = (c.urgency or "?").upper()
+            print(f"  [{urgency}] {c.representative_title}")
+            print(f"         score={c.score:.2f} | type={c.signal_type} | sources={','.join(c.sources)}")
+            for idea in (c.product_ideas or []):
+                print(f"         💡 {idea}")
+    print("\n" + "="*60)
+    print(f"[Pipeline] Done. {len(clusters)} total clusters across {len(by_niche)} niches.")
     return top
 
 

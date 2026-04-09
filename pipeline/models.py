@@ -3,6 +3,24 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
+NICHES = ["commerce", "business", "tech_ai", "content", "general"]
+
+NICHE_LABELS = {
+    "commerce":  "🛒 Commerce",
+    "business":  "💡 Business",
+    "tech_ai":   "🤖 Tech & AI",
+    "content":   "🎬 Content",
+    "general":   "🌍 General",
+}
+
+SIGNAL_TYPES = [
+    "rising_topic",
+    "commercial_intent",
+    "viral_content",
+    "new_product",
+    "search_surge",
+]
+
 
 @dataclass
 class RawSignal:
@@ -26,12 +44,17 @@ class TrendCluster:
     representative_title: str
     keywords: List[str]
     sources: List[str]
+    # Scores
     score: float = 0.0
     growth_score: float = 0.0
     diversity_score: float = 0.0
     commercial_score: float = 0.0
     novelty_score: float = 0.0
     persistence_score: float = 0.0
+    # Classification
+    niche: str = "general"           # commerce | business | tech_ai | content | general
+    signal_type: str = "rising_topic" # rising_topic | commercial_intent | viral_content | new_product | search_surge
+    # LLM brief
     brief: Optional[str] = None
     product_ideas: Optional[List[str]] = None
-    urgency: Optional[str] = None  # low / medium / high
+    urgency: Optional[str] = None    # low | medium | high

@@ -2,35 +2,54 @@
 
 ## Vision
 A self-hosted, zero-cost trend discovery tool that scans multiple public sources,
-clusters signals by topic, scores them for commercial opportunity, and generates
-actionable briefs using a local LLM. No API keys required to run.
+clusters signals by topic, scores them for commercial opportunity, classifies them
+into 5 core niches, and generates actionable briefs using a local LLM.
 
 ---
 
-## Current Status: Phase 1 — No-API MVP
+## Niche Taxonomy (5 Core Niches)
 
-### ✅ Implemented
+| ID | Label | What it covers |
+|---|---|---|
+| `commerce` | 🛒 Commerce | Kindle, Etsy, POD, Amazon FBA, eBay reselling, dropshipping |
+| `business` | 💡 Business | Side hustles, SaaS ideas, freelance, agency, affiliate, income streams |
+| `tech_ai` | 🤖 Tech & AI | AI tools, LLMs, GitHub projects, dev tools, no-code/low-code |
+| `content` | 🎬 Content | YouTube, podcasts, newsletters, blogs, creator monetization |
+| `general` | 🌍 General | Cross-niche, news, Wikipedia surges, catch-all |
+
+### Classification Pipeline
+1. Source pre-label (subreddit/source → niche map, instant)
+2. Keyword fingerprint override (first-match, fast)
+3. Embedding cosine similarity fallback (free, uses existing vectors)
+4. Falls back to `general` if ambiguous
+
+---
+
+## Current Status: Phase 1 — No-API MVP ✅
+
+### Implemented
 - [x] Project structure & pipeline architecture
-- [x] Base collector class
-- [x] Reddit free JSON collector (no PRAW, no approval)
+- [x] Reddit free JSON collector (no PRAW)
 - [x] Hacker News public API collector
 - [x] RSS feed collector
-- [x] Google Trends collector (pytrends — no key)
-- [x] YouTube scrape collector (no API key)
+- [x] Google Trends (pytrends — no key)
+- [x] YouTube RSS search collector
 - [x] GitHub Trending scraper
-- [x] Amazon search suggestion scraper
+- [x] Amazon autocomplete collector
 - [x] Signal normalization & deduplication
 - [x] Sentence-transformer embeddings
 - [x] DBSCAN clustering
 - [x] Weighted scoring model
+- [x] **5-niche classification layer** (commerce / business / tech_ai / content / general)
+- [x] **Signal type classification** (rising_topic / commercial_intent / viral_content / new_product / search_surge)
 - [x] Ollama local LLM brief generation (free, offline)
-- [x] FastAPI backend with /scan endpoint
+- [x] FastAPI `/scan` endpoint with niche filtering + grouped output
 - [x] APScheduler background jobs
 
-### 🔧 In Progress
-- [ ] PostgreSQL persistence layer (store trends over time)
-- [ ] Historical novelty & persistence scoring (requires DB)
-- [ ] Basic dashboard UI (HTMX or React)
+### In Progress
+- [ ] PostgreSQL persistence layer
+- [ ] Historical novelty & persistence scoring
+- [ ] Dashboard UI
 
 ---
 
@@ -39,103 +58,88 @@ actionable briefs using a local LLM. No API keys required to run.
 - [ ] PostgreSQL + pgvector setup
 - [ ] Alembic migrations
 - [ ] Store every scan run with timestamps
-- [ ] Real novelty score: compare new clusters against DB history
+- [ ] Real novelty score: compare clusters against DB history
 - [ ] Real persistence score: track clusters across multiple runs
-- [ ] Deduplication across runs (same trend, different days)
 - [ ] Export trends as CSV
-- [ ] Simple HTML dashboard to browse results
 
 ---
 
-## Phase 3 — UI & UX
+## Phase 3 — Dashboard UI
 
-- [ ] Dashboard with trend cards (title, score, urgency, brief)
-- [ ] Filter by urgency / source / score
+- [ ] Dashboard with 5 niche tabs
+- [ ] Trend cards: title, niche badge, signal type, urgency, score, brief
+- [ ] Filter by urgency / signal type / score
 - [ ] Watchlist: save interesting trends
-- [ ] One-click export per trend (brief + product ideas as text)
-- [ ] Dark mode
-- [ ] Mobile-friendly layout
+- [ ] One-click export per trend
+- [ ] Dark mode + mobile layout
 
 ---
 
 ## Phase 4 — API Integrations (Future / Optional)
 
-These are paid or approval-required APIs that would significantly improve
-data quality. Not needed for MVP, but worth integrating later.
+Not needed for MVP — all sources currently run without keys.
 
 ### 🔑 Reddit Official API (PRAW)
-- **Why:** Structured access to rising/hot/new posts, comment sentiment, flair data
-- **Cost:** Free for low-volume personal use
-- **Limit:** 100 requests/min on free tier
-- **How to get:** reddit.com/prefs/apps → create "script" app
-- **File to update:** Replace `collectors/reddit_free.py` with `collectors/reddit.py`
-- **Gain over scraping:** OAuth context, higher rate limits, comment-level data
+- **Why:** Structured data, comment sentiment, OAuth context
+- **Cost:** Free (low-volume)
+- **Get it:** reddit.com/prefs/apps → create "script" app
+- **File:** Replace `collectors/reddit_free.py` with `collectors/reddit.py`
 
 ### 🔑 YouTube Data API v3
-- **Why:** Search by keyword, get view count, trending videos by region, channel stats
-- **Cost:** Free — 10,000 quota units/day
-- **Limit:** ~100 search queries/day on free tier
-- **How to get:** console.cloud.google.com → Enable YouTube Data API v3 → Create API Key
-- **File to update:** Replace `collectors/youtube_free.py` with `collectors/youtube.py`
-- **Gain over scraping:** Reliable structured data, regional trending, subscriber counts
+- **Why:** Search by keyword, trending by region, view/subscriber counts
+- **Cost:** Free — 10,000 units/day
+- **Get it:** console.cloud.google.com → Enable YouTube Data API v3
+- **File:** Replace `collectors/youtube_free.py` with `collectors/youtube.py`
 
 ### 🔑 OpenAI API
-- **Why:** GPT-4o-mini is faster and more reliable than local Ollama for brief generation
-- **Cost:** ~$0.001 per brief (extremely cheap)
-- **How to get:** platform.openai.com → Billing → Add credits → Create API Key
-- **File to update:** Change `LLM_PROVIDER=ollama` to `LLM_PROVIDER=openai` in `.env`
-- **Gain over Ollama:** No local GPU needed, faster inference, better output quality
+- **Why:** Faster, more reliable than local Ollama
+- **Cost:** ~$0.001/brief (gpt-4o-mini)
+- **Get it:** platform.openai.com → Billing → API Keys
+- **Config:** Set `LLM_PROVIDER=openai` in `.env`
 
 ### 🔑 Anthropic Claude API
-- **Why:** Claude Haiku is cheap and very good at structured JSON output
-- **Cost:** ~$0.001 per brief
-- **How to get:** console.anthropic.com → API Keys
-- **File to update:** Change `LLM_PROVIDER=ollama` to `LLM_PROVIDER=anthropic` in `.env`
+- **Why:** Excellent structured JSON output
+- **Cost:** ~$0.001/brief (claude-haiku)
+- **Get it:** console.anthropic.com → API Keys
+- **Config:** Set `LLM_PROVIDER=anthropic` in `.env`
 
 ### 🔑 Product Hunt API
-- **Why:** Direct access to newly launched products sorted by votes
+- **Why:** Structured launch data, vote counts
 - **Cost:** Free
-- **How to get:** api.producthunt.com/v2/docs → Create application
-- **Collector to build:** `collectors/producthunt.py`
-- **Gain:** High-quality startup/product launch signals, not available via scraping
-
-### 🔑 Twitter/X API
-- **Why:** Real-time trending topics, viral content signals
-- **Cost:** Free tier is very limited (1,500 tweets/month). Basic tier $100/month.
-- **How to get:** developer.twitter.com → Create project → API Key
-- **Note:** Low priority due to high cost and strict rate limits
-- **Collector to build:** `collectors/twitter.py`
-
-### 🔑 Google Trends API (SerpAPI / DataForSEO)
-- **Why:** pytrends is unofficial and breaks frequently; paid APIs are stable
-- **Cost:** SerpAPI free tier = 100 searches/month. DataForSEO from ~$50/month.
-- **How to get:** serpapi.com or dataforseo.com
-- **Note:** Only worth it if pytrends starts failing regularly
-
-### 🔑 Amazon Product Advertising API (PA-API)
-- **Why:** Real bestseller ranks, search volume by category, product trends
-- **Cost:** Free (requires Amazon Associates account)
-- **How to get:** affiliate-program.amazon.com → Tools → Product Advertising API
-- **Note:** Requires active affiliate account with sales history
-- **Collector to build:** `collectors/amazon_pa.py`
+- **Get it:** api.producthunt.com/v2/docs
+- **File:** `collectors/producthunt.py` (to build)
 
 ### 🔑 Etsy API
-- **Why:** Real trending searches, listing data, view counts
+- **Why:** Real trending searches, listing view counts
 - **Cost:** Free
-- **How to get:** etsy.com/developers → Create App
-- **Collector to build:** `collectors/etsy.py`
+- **Get it:** etsy.com/developers → Create App
+- **File:** `collectors/etsy.py` (to build)
+
+### 🔑 Twitter/X API
+- **Why:** Real-time viral signals
+- **Cost:** Basic tier $100/month — low priority
+- **File:** `collectors/twitter.py` (to build)
+
+### 🔑 Amazon PA-API
+- **Why:** Real bestseller ranks, category trends
+- **Cost:** Free (requires Associates account with sales history)
+- **File:** `collectors/amazon_pa.py` (to build)
+
+### 🔑 Google Trends (SerpAPI)
+- **Why:** Stable alternative if pytrends breaks
+- **Cost:** 100 free searches/month on SerpAPI
+- **File:** Update `collectors/google_trends.py`
 
 ---
 
-## Phase 5 — Monetization & Scaling (Long-term)
+## Phase 5 — Monetization & Scaling
 
 - [ ] User accounts & saved searches
-- [ ] Email digest (weekly trend report)
-- [ ] Niche filtering (e-commerce / YouTube / Kindle / courses)
-- [ ] Trend history charts (price this trend over time)
-- [ ] Webhook/Zapier integration for alerts
-- [ ] White-label version for agencies
-- [ ] Sell as a SaaS (lifetime deal on AppSumo style platforms)
+- [ ] Weekly email digest per niche
+- [ ] Niche-specific alert webhooks
+- [ ] Trend history charts
+- [ ] White-label version
+- [ ] SaaS / lifetime deal (AppSumo style)
 
 ---
 
@@ -149,7 +153,20 @@ score = 0.30 × growth
       + 0.15 × persistence
 ```
 
-Weights are configurable via `.env`. See `pipeline/scorer.py`.
+Weights configurable via `.env`. See `pipeline/scorer.py`.
+
+---
+
+## API Endpoints
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/` | Status + niche list |
+| POST | `/scan` | Run pipeline, return grouped trends |
+| POST | `/scan?niche=commerce` | Run pipeline, filter to one niche |
+| POST | `/scan?grouped=false` | Run pipeline, flat sorted list |
+| GET | `/niches` | List all niche IDs and labels |
+| GET | `/health` | Health check |
 
 ---
 
@@ -161,7 +178,7 @@ Weights are configurable via `.env`. See `pipeline/scorer.py`.
 | Jobs | APScheduler | Runs pipeline every N minutes |
 | Database | PostgreSQL + pgvector | Phase 2 |
 | Embeddings | sentence-transformers | all-MiniLM-L6-v2 |
-| Clustering | DBSCAN (sklearn) | Cosine distance via normalized vectors |
-| LLM | Ollama (local) | Default. OpenAI/Anthropic optional via .env |
+| Clustering | DBSCAN (sklearn) | Cosine distance |
+| Classification | Rule-based + embeddings | pipeline/classifier.py |
+| LLM | Ollama (local) | Default free. OpenAI/Anthropic optional |
 | Frontend | TBD (HTMX or React) | Phase 3 |
-| Hosting | Hetzner / Railway / Render | Phase 5 |
