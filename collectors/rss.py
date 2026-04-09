@@ -9,32 +9,53 @@ from pipeline.models import RawSignal
 DEFAULT_FEEDS = [
 
     # -------------------------------------------------------------------------
-    # TECH / AI
+    # TECH / AI  (25 feeds)
     # -------------------------------------------------------------------------
     "https://feeds.feedburner.com/TechCrunch",
+    "https://techcrunch.com/startups/feed",
     "https://www.theverge.com/rss/index.xml",
-    "https://openai.com/blog/rss/",
+    "https://www.wired.com/feed/rss",
+    "https://www.engadget.com/rss.xml",
+    "https://venturebeat.com/feed",
+    "https://www.zdnet.com/news/rss.xml",
+    "https://www.techradar.com/rss",
+    # AI-specific
+    "https://openai.com/news/rss.xml",
     "https://huggingface.co/blog/feed.xml",
+    "https://blog.google/technology/ai/rss/",
+    "https://www.technologyreview.com/topic/artificial-intelligence/feed/",
+    "https://www.marktechpost.com/feed/",
+    "https://rss.arxiv.org/rss/cs.AI",
     "https://www.therundown.ai/feed",
     "https://tldr.tech/api/rss/ai",
     "https://aiweekly.co/rss",
     "https://importai.substack.com/feed",
     "https://bensbites.beehiiv.com/feed",
     "https://www.deeplearning.ai/the-batch/feed/",
-    "https://www.wired.com/feed/rss",
+    "https://www.theaireport.ai/feed",
+    "https://www.fast.ai/atom.xml",
+    "https://lastweek.io/feed.xml",
+    "https://thesequence.substack.com/feed",
+    "https://www.semianalysis.com/feed",
 
     # -------------------------------------------------------------------------
-    # PRODUCT LAUNCHES & STARTUPS
+    # PRODUCT LAUNCHES & STARTUPS  (12 feeds)
     # -------------------------------------------------------------------------
     "https://www.producthunt.com/feed",
     "https://hnrss.org/frontpage",
+    "https://hnrss.org/newest?points=100",
     "https://www.starterstory.com/feed",
     "https://www.failory.com/feed",
     "https://www.thebootstrappedfounder.com/feed",
     "https://www.indiehackers.com/feed.rss",
+    "https://www.saastr.com/feed/",
+    "https://bothsidesofthetable.com/feed",
+    "https://a16z.com/feed/",
+    "https://www.ycombinator.com/blog/rss",
+    "https://pitchbook.com/news/rss",
 
     # -------------------------------------------------------------------------
-    # COMMERCE / AMAZON / ETSY / POD
+    # COMMERCE / AMAZON / ETSY / EBAY / MARKETPLACES  (14 feeds)
     # -------------------------------------------------------------------------
     "https://mywifequitherjob.com/feed/",
     "https://www.junglescout.com/blog/feed/",
@@ -42,44 +63,104 @@ DEFAULT_FEEDS = [
     "https://www.practicalecommerce.com/feed",
     "https://www.ecommercefuel.com/feed/",
     "https://www.webretailer.com/feed/",
-    "https://www.printful.com/blog/feed/",
     "https://www.shopify.com/blog/rss",
+    "https://www.bigcommerce.com/blog/feed/",
+    "https://www.2ndoffice.co/feed",
+    "https://feedpress.me/sellerapp-blog",
+    "https://www.repricerexpress.com/blog/feed/",
+    "https://www.sellersnap.io/blog/feed/",
+    "https://www.merchantwords.com/blog/feed/",
+    "https://www.feedvisor.com/resources/feed/",
 
     # -------------------------------------------------------------------------
-    # SIDE HUSTLES / PASSIVE INCOME / BUSINESS
+    # PRINT ON DEMAND / MERCH  (6 feeds)
+    # -------------------------------------------------------------------------
+    "https://www.printful.com/blog/feed/",
+    "https://printify.com/blog/feed/",
+    "https://www.redbubble.com/blog/feed/",
+    "https://www.teepublic.com/blog/feed",
+    "https://www.merchwizard.com/blog/feed",
+    "https://podinsights.blog/feed/",
+
+    # -------------------------------------------------------------------------
+    # SIDE HUSTLES / PASSIVE INCOME / SOLOPRENEUR  (10 feeds)
     # -------------------------------------------------------------------------
     "https://www.sidehustlenation.com/feed/",
     "https://www.smartpassiveincome.com/feed/",
     "https://www.inc.com/rss",
-    "https://feeds.feedburner.com/entrepreneur/latest",
+    "https://www.entrepreneur.com/latest.rss",
     "https://www.founderpath.com/feed",
+    "https://www.nichepursuits.com/feed/",
+    "https://incomeschool.com/feed/",
+    "https://www.moneylab.co/feed",
+    "https://www.onlinedimes.com/feed/",
+    "https://www.dollarsprout.com/feed/",
 
     # -------------------------------------------------------------------------
-    # CONTENT CREATORS / YOUTUBE / SOCIAL
+    # CONTENT CREATORS / YOUTUBE / SOCIAL MEDIA  (10 feeds)
     # -------------------------------------------------------------------------
     "https://creatoreconomy.so/feed",
     "https://www.tubefilter.com/feed/",
     "https://www.vidiq.com/blog/feed/",
     "https://www.socialmediaexaminer.com/feed/",
     "https://blog.buffer.com/rss/",
+    "https://sproutsocial.com/insights/feed/",
+    "https://www.later.com/blog/feed/",
+    "https://www.hootsuite.com/resources/feed",
+    "https://www.podcastinsights.com/feed/",
+    "https://castos.com/blog/feed/",
 
     # -------------------------------------------------------------------------
-    # SEO / SEARCH TRENDS
+    # DIGITAL PRODUCTS / KDP / COURSES / TEMPLATES  (7 feeds)
+    # -------------------------------------------------------------------------
+    "https://kdp.amazon.com/en_US/help/topic/G200635650",
+    "https://selfpublishingadvice.org/feed/",
+    "https://thecreatorseries.substack.com/feed",
+    "https://www.thinkific.com/blog/feed/",
+    "https://www.teachable.com/blog/feed",
+    "https://www.podia.com/articles/feed",
+    "https://convertkit.com/newsletter/feed",
+
+    # -------------------------------------------------------------------------
+    # SEO / SEARCH / KEYWORD TRENDS  (8 feeds)
     # -------------------------------------------------------------------------
     "https://www.semrush.com/blog/feed/",
     "https://ahrefs.com/blog/rss/",
     "https://moz.com/blog/feed",
+    "https://searchengineland.com/feed",
+    "https://searchenginejournal.com/feed",
+    "https://www.searchenginewatch.com/feed/",
+    "https://neilpatel.com/blog/feed/",
+    "https://backlinko.com/blog/rss",
 
     # -------------------------------------------------------------------------
-    # TRENDING / GENERAL
+    # TRENDING / VIRAL / GENERAL NEWS  (12 feeds)
     # -------------------------------------------------------------------------
     "https://trends.google.com/trending/rss?geo=US",
+    "https://trends.google.com/trending/rss?geo=GB",
+    "https://trends.google.com/trending/rss?geo=DE",
     "https://feeds.bbci.co.uk/news/business/rss.xml",
+    "https://feeds.bbci.co.uk/news/technology/rss.xml",
     "https://rss.nytimes.com/services/xml/rss/nyt/Business.xml",
+    "https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml",
+    "https://www.fastcompany.com/rss",
+    "https://www.forbes.com/innovation/feed2",
     "https://mashable.com/feeds/rss/all",
+    "https://feeds.a.dj.com/rss/RSSMarketsMain.xml",
+    "https://feeds.finance.yahoo.com/rss/2.0/headline",
 
     # -------------------------------------------------------------------------
-    # REDDIT (public RSS — cross-confirms reddit_free collector signals)
+    # CRYPTO / WEB3 / FINTECH (bonus signals for digital product trends)  (6 feeds)
+    # -------------------------------------------------------------------------
+    "https://cointelegraph.com/rss",
+    "https://decrypt.co/feed",
+    "https://www.coindesk.com/arc/outboundfeeds/rss/",
+    "https://techcrunch.com/category/fintech/feed",
+    "https://fintechmagazine.com/rss",
+    "https://www.pymnts.com/feed/",
+
+    # -------------------------------------------------------------------------
+    # REDDIT (public RSS — cross-confirms reddit_free collector)  (15 feeds)
     # -------------------------------------------------------------------------
     "https://www.reddit.com/r/entrepreneur/.rss",
     "https://www.reddit.com/r/SideProject/.rss",
@@ -87,6 +168,15 @@ DEFAULT_FEEDS = [
     "https://www.reddit.com/r/smallbusiness/.rss",
     "https://www.reddit.com/r/business/.rss",
     "https://www.reddit.com/r/trends/.rss",
+    "https://www.reddit.com/r/Flipping/.rss",
+    "https://www.reddit.com/r/ecommerce/.rss",
+    "https://www.reddit.com/r/FulfillmentByAmazon/.rss",
+    "https://www.reddit.com/r/etsy/.rss",
+    "https://www.reddit.com/r/printOnDemand/.rss",
+    "https://www.reddit.com/r/juststart/.rss",
+    "https://www.reddit.com/r/affiliatemarketing/.rss",
+    "https://www.reddit.com/r/digital_marketing/.rss",
+    "https://www.reddit.com/r/artificial/.rss",
 ]
 
 
