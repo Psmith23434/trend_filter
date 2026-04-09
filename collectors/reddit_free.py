@@ -45,3 +45,7 @@ class RedditFreeCollector(BaseCollector):
             except Exception as e:
                 print(f"[RedditFree] Error on r/{sub}: {e}")
         return signals
+
+
+def collect() -> List[RawSignal]:
+    return RedditFreeCollector().collect()

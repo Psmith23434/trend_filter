@@ -1,5 +1,4 @@
-"""Google Trends collector using pytrends."""
-from pytrends.request import TrendReq
+"""Google Trends collector — uses pytrends (no API key required)."""
 from typing import List
 from datetime import datetime, timezone
 from collectors.base import BaseCollector
@@ -9,39 +8,43 @@ from pipeline.models import RawSignal
 class GoogleTrendsCollector(BaseCollector):
     source_name = "google_trends"
 
-    def __init__(self, keywords: List[str] = None, timeframe: str = "now 7-d"):
-        self.keywords = keywords or []
-        self.timeframe = timeframe
-        self.pytrends = TrendReq(hl="en-US", tz=360)
+    def __init__(self, keywords: List[str] = None, geo: str = "US"):
+        self.keywords = keywords or [
+            "side hustle", "AI tools", "passive income", "print on demand",
+            "dropshipping", "content creator", "no code", "solopreneur",
+        ]
+        self.geo = geo
 
     def collect(self) -> List[RawSignal]:
         signals = []
-        # Fetch trending searches if no keywords provided
-        if not self.keywords:
-            try:
-                trending = self.pytrends.trending_searches(pn="united_states")
-                self.keywords = trending[0].tolist()[:20]
-            except Exception as e:
-                print(f"[GoogleTrendsCollector] Error fetching trending: {e}")
-                return signals
-
-        batch = self.keywords[:5]  # pytrends max 5 per request
         try:
-            self.pytrends.build_payload(batch, timeframe=self.timeframe)
-            interest = self.pytrends.interest_over_time()
-            for kw in batch:
-                if kw in interest.columns:
-                    score = int(interest[kw].iloc[-1])
+            from pytrends.request import TrendReq
+            pt = TrendReq(hl="en-US", tz=0)
+            for kw in self.keywords:
+                try:
+                    pt.build_payload([kw], timeframe="now 7-d", geo=self.geo)
+                    data = pt.interest_over_time()
+                    if data.empty:
+                        continue
+                    latest = int(data[kw].iloc[-1])
+                    avg = float(data[kw].mean())
+                    growth = (latest - avg) / max(avg, 1)
                     signals.append(RawSignal(
                         source=self.source_name,
-                        source_id=f"gtrends_{kw}",
+                        source_id=f"gt_{kw.replace(' ', '_')}",
                         title=kw,
-                        text=f"Google search interest score: {score}/100",
-                        url=f"https://trends.google.com/trends/explore?q={kw}",
+                        text=f"Google Trends interest: {latest}/100 (7-day avg {avg:.0f})",
+                        url=f"https://trends.google.com/trends/explore?q={kw.replace(' ', '+')}",
                         published_at=datetime.now(tz=timezone.utc),
-                        engagement=score,
-                        meta={"interest_score": score},
+                        engagement=latest,
+                        meta={"growth": growth, "avg": avg},
                     ))
-        except Exception as e:
-            print(f"[GoogleTrendsCollector] Error: {e}")
+                except Exception as e:
+                    print(f"[GoogleTrends] Error on '{kw}': {e}")
+        except ImportError:
+            print("[GoogleTrends] pytrends not installed, skipping.")
         return signals
+
+
+def collect() -> List[RawSignal]:
+    return GoogleTrendsCollector().collect()
