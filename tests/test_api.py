@@ -1,16 +1,27 @@
-"""API smoke tests using FastAPI TestClient (no real DB required — uses mock)."""
+"""API smoke tests — fully mocked, no real Postgres or pipeline needed."""
 import pytest
 from unittest.mock import patch, MagicMock
 
 
 @pytest.fixture
 def client():
-    # Patch DB session so the API starts without a real Postgres connection
-    mock_db = MagicMock()
-    with patch("db.session.SessionLocal", return_value=mock_db):
+    """Create a TestClient with ALL DB/engine calls mocked out at import time."""
+    mock_engine = MagicMock()
+    mock_session = MagicMock()
+
+    # Patch at the SQLAlchemy create_engine level so api/main.py never
+    # tries to open a real connection, even in module-level code.
+    with patch("sqlalchemy.create_engine", return_value=mock_engine), \
+         patch("db.session.SessionLocal", return_value=mock_session), \
+         patch("sqlalchemy.orm.Session.execute", return_value=MagicMock()):
+
+        # Re-import fresh each time so patches take effect
+        import importlib
+        import api.main as main_mod
+        importlib.reload(main_mod)
+
         from fastapi.testclient import TestClient
-        from api.main import app
-        yield TestClient(app)
+        yield TestClient(main_mod.app)
 
 
 def test_health_endpoint(client):

@@ -1,24 +1,34 @@
 """Unit tests for normalizer, embedder, clusterer, classifier."""
-import pytest
 from pipeline.models import RawSignal
+from datetime import datetime, timezone
 
 
-SAMPLE_RAW = [
-    {"title": "AI tools for Etsy sellers", "text": "People are using AI to automate Etsy listings.",
-     "url": "https://reddit.com/1", "source": "reddit", "engagement": 200, "published_at": None, "meta": {}},
-    {"title": "Best AI tools Etsy 2026", "text": "A roundup of AI tools for e-commerce sellers.",
-     "url": "https://reddit.com/2", "source": "reddit", "engagement": 150, "published_at": None, "meta": {}},
-    {"title": "Open source LLM released", "text": "A new open source language model was released on GitHub.",
-     "url": "https://hn.com/1", "source": "hackernews", "engagement": 500, "published_at": None, "meta": {}},
-    {"title": "Local LLM runs on CPU", "text": "Developers are running LLMs locally without a GPU.",
-     "url": "https://hn.com/2", "source": "hackernews", "engagement": 400, "published_at": None, "meta": {}},
-]
+def _make_signals():
+    """Return RawSignal objects (what normalizer actually expects)."""
+    return [
+        RawSignal(source="reddit",    source_id="1", title="AI tools for Etsy sellers",
+                  text="People are using AI to automate Etsy listings.",
+                  url="https://reddit.com/1", engagement=200,
+                  published_at=datetime.now(timezone.utc), meta={}),
+        RawSignal(source="reddit",    source_id="2", title="Best AI tools Etsy 2026",
+                  text="A roundup of AI tools for e-commerce sellers.",
+                  url="https://reddit.com/2", engagement=150,
+                  published_at=datetime.now(timezone.utc), meta={}),
+        RawSignal(source="hackernews", source_id="3", title="Open source LLM released",
+                  text="A new open source language model was released on GitHub.",
+                  url="https://hn.com/1", engagement=500,
+                  published_at=datetime.now(timezone.utc), meta={}),
+        RawSignal(source="hackernews", source_id="4", title="Local LLM runs on CPU",
+                  text="Developers are running LLMs locally without a GPU.",
+                  url="https://hn.com/2", engagement=400,
+                  published_at=datetime.now(timezone.utc), meta={}),
+    ]
 
 
 def test_normalizer():
     from pipeline.normalizer import normalize
-    signals = normalize(SAMPLE_RAW)
-    assert len(signals) == len(SAMPLE_RAW)
+    signals = normalize(_make_signals())
+    assert len(signals) == 4
     for s in signals:
         assert isinstance(s, RawSignal)
         assert s.title
@@ -28,7 +38,7 @@ def test_normalizer():
 def test_embedder():
     from pipeline.normalizer import normalize
     from pipeline.embedder import embed_signals
-    signals = normalize(SAMPLE_RAW)
+    signals = normalize(_make_signals())
     embedded = embed_signals(signals)
     for s in embedded:
         assert s.embedding is not None
@@ -39,10 +49,9 @@ def test_clusterer_returns_clusters():
     from pipeline.normalizer import normalize
     from pipeline.embedder import embed_signals
     from pipeline.clusterer import cluster_signals
-    signals = normalize(SAMPLE_RAW)
+    signals = normalize(_make_signals())
     signals = embed_signals(signals)
     clusters = cluster_signals(signals)
-    # With 4 clearly related signals we expect at least 1 cluster
     assert len(clusters) >= 1
     for c in clusters:
         assert c.id
@@ -55,7 +64,7 @@ def test_classifier_assigns_niche():
     from pipeline.embedder import embed_signals
     from pipeline.clusterer import cluster_signals
     from pipeline.classifier import classify_clusters
-    signals = normalize(SAMPLE_RAW)
+    signals = normalize(_make_signals())
     signals = embed_signals(signals)
     clusters = cluster_signals(signals)
     clusters = classify_clusters(clusters)
