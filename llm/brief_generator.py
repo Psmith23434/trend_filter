@@ -1,14 +1,14 @@
 """Generate trend briefs using a local Ollama model (default) or cloud LLM.
 
 Set LLM_PROVIDER in .env:
-  LLM_PROVIDER=ollama      (default, free, local)
+  LLM_PROVIDER=none        (default — skips brief generation entirely)
+  LLM_PROVIDER=ollama      (free, local — requires Ollama installed)
   LLM_PROVIDER=openai      (requires OPENAI_API_KEY)
   LLM_PROVIDER=anthropic   (requires ANTHROPIC_API_KEY)
 """
 import os
 import json
 import re
-from pipeline.models import TrendCluster
 
 SYSTEM_PROMPT = """You are a trend analyst for digital product creators.
 Given a cluster of signals about a trending topic, output a structured brief.
@@ -17,42 +17,47 @@ Always respond with valid JSON only — no extra text."""
 
 USER_TEMPLATE = """Trend: {title}
 Sources: {sources}
-Top signals:
-{signals}
+Keywords: {keywords}
 
 Respond with this exact JSON structure:
 {{
-  "description": "2-sentence plain-language explanation of what this trend is.",
+  "brief": "2-sentence plain-language explanation of what this trend is.",
   "why_now": "1-2 sentences on why this is rising right now.",
   "product_ideas": ["idea 1", "idea 2", "idea 3"],
-  "urgency": "low or medium or high"
+  "action_plan": ["step 1", "step 2", "step 3"]
 }}"""
 
 
-def generate_brief(cluster: TrendCluster) -> TrendCluster:
-    provider = os.getenv("LLM_PROVIDER", "ollama").lower()
-    signals_text = "\n".join(
-        f"- [{s.source}] {s.title}" for s in cluster.signals[:5]
-    )
+def generate_brief(cluster: dict) -> dict:
+    """Accept a plain dict (as passed by runner.py) and return a brief dict.
+    Returns empty defaults immediately when LLM_PROVIDER=none.
+    """
+    provider = os.getenv("LLM_PROVIDER", "none").lower()
+
+    empty = {"brief": "", "product_ideas": [], "action_plan": []}
+
+    if provider == "none":
+        return empty
+
+    title = cluster.get("title", "Unknown trend")
+    sources = ", ".join(cluster.get("sources", []))
+    keywords = ", ".join(cluster.get("keywords", []))
+
     user_msg = USER_TEMPLATE.format(
-        title=cluster.representative_title,
-        sources=", ".join(cluster.sources),
-        signals=signals_text,
+        title=title,
+        sources=sources or "various",
+        keywords=keywords or "n/a",
     )
+
     try:
         raw = _call_llm(system=SYSTEM_PROMPT, user=user_msg, provider=provider)
         match = re.search(r"\{.*\}", raw, re.DOTALL)
         if match:
-            data = json.loads(match.group())
-            cluster.brief = data.get("description", "")
-            cluster.product_ideas = data.get("product_ideas", [])
-            cluster.urgency = data.get("urgency", "medium")
+            return json.loads(match.group())
     except Exception as e:
         print(f"[BriefGenerator] Error ({provider}): {e}")
-        cluster.brief = f"Trend: {cluster.representative_title}"
-        cluster.urgency = "medium"
-        cluster.product_ideas = []
-    return cluster
+
+    return empty
 
 
 def _call_llm(system: str, user: str, provider: str) -> str:
@@ -63,11 +68,10 @@ def _call_llm(system: str, user: str, provider: str) -> str:
     elif provider == "anthropic":
         return _anthropic(system, user)
     else:
-        raise ValueError(f"Unknown LLM_PROVIDER: {provider}")
+        raise ValueError(f"Unknown LLM_PROVIDER: '{provider}'. Use: none | ollama | openai | anthropic")
 
 
 def _ollama(system: str, user: str) -> str:
-    """Call local Ollama instance. Install: https://ollama.com — then run: ollama pull llama3"""
     import httpx
     model = os.getenv("OLLAMA_MODEL", "llama3")
     ollama_url = os.getenv("OLLAMA_URL", "http://localhost:11434/api/chat")
