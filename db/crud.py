@@ -98,13 +98,15 @@ def title_seen_before(db: Session, title: str, lookback_days: int = 7) -> int:
 
 
 def title_persistence_score(db: Session, title: str, lookback_days: int = 30) -> float:
-    """0-1 persistence: fraction of days in lookback window where title appeared."""
+    """0-1 persistence: fraction of days in lookback window where title appeared.
+    Uses strftime('%Y-%m-%d', ...) which works on both SQLite and PostgreSQL.
+    """
     cutoff = datetime.now(tz=timezone.utc) - timedelta(days=lookback_days)
     days_seen = (
         db.query(
             func.count(
                 func.distinct(
-                    func.date_trunc("day", TrendRecord.created_at)
+                    func.strftime("%Y-%m-%d", TrendRecord.created_at)
                 )
             )
         )
