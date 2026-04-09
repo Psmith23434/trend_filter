@@ -9,3 +9,5 @@ build/
 *.log
 .DS_Store
 *.sqlite3
+test_output.txt
+.pytest_cache/

@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import func
@@ -6,10 +6,10 @@ from sqlalchemy import func
 from .models import ScanRun, TrendRecord
 
 
-# ── Scan runs ──────────────────────────────────────────────────────────────────
+# ── Scan runs ──────────────────────────────────────────────────────────────────────────────
 
 def create_scan_run(db: Session) -> ScanRun:
-    run = ScanRun(started_at=datetime.utcnow())
+    run = ScanRun(started_at=datetime.now(tz=timezone.utc))
     db.add(run)
     db.commit()
     db.refresh(run)
@@ -19,7 +19,7 @@ def create_scan_run(db: Session) -> ScanRun:
 def finish_scan_run(db: Session, run_id: int, signal_count: int, cluster_count: int) -> ScanRun:
     run = db.query(ScanRun).filter(ScanRun.id == run_id).first()
     if run:
-        run.finished_at = datetime.utcnow()
+        run.finished_at = datetime.now(tz=timezone.utc)
         run.signal_count = signal_count
         run.cluster_count = cluster_count
         db.commit()
@@ -31,7 +31,7 @@ def get_recent_runs(db: Session, limit: int = 20) -> List[ScanRun]:
     return db.query(ScanRun).order_by(ScanRun.started_at.desc()).limit(limit).all()
 
 
-# ── Trend records ──────────────────────────────────────────────────────────────
+# ── Trend records ───────────────────────────────────────────────────────────────────────────
 
 def save_trend(db: Session, scan_run_id: int, trend: dict) -> TrendRecord:
     record = TrendRecord(
@@ -69,7 +69,7 @@ def get_trends(
     limit: int = 50,
     since_hours: int = 24,
 ) -> List[TrendRecord]:
-    cutoff = datetime.utcnow() - timedelta(hours=since_hours)
+    cutoff = datetime.now(tz=timezone.utc) - timedelta(hours=since_hours)
     q = db.query(TrendRecord).filter(TrendRecord.created_at >= cutoff)
     if niche:
         q = q.filter(TrendRecord.niche == niche)
@@ -84,11 +84,11 @@ def get_trend_by_id(db: Session, trend_id: int) -> Optional[TrendRecord]:
     return db.query(TrendRecord).filter(TrendRecord.id == trend_id).first()
 
 
-# ── Historical helpers for scorer ──────────────────────────────────────────────
+# ── Historical helpers for scorer ──────────────────────────────────────────────────────────
 
 def title_seen_before(db: Session, title: str, lookback_days: int = 7) -> int:
     """Return how many times this title appeared in the last N days."""
-    cutoff = datetime.utcnow() - timedelta(days=lookback_days)
+    cutoff = datetime.now(tz=timezone.utc) - timedelta(days=lookback_days)
     return (
         db.query(func.count(TrendRecord.id))
         .filter(TrendRecord.title == title, TrendRecord.created_at >= cutoff)
@@ -99,7 +99,7 @@ def title_seen_before(db: Session, title: str, lookback_days: int = 7) -> int:
 
 def title_persistence_score(db: Session, title: str, lookback_days: int = 30) -> float:
     """0-1 persistence: fraction of days in lookback window where title appeared."""
-    cutoff = datetime.utcnow() - timedelta(days=lookback_days)
+    cutoff = datetime.now(tz=timezone.utc) - timedelta(days=lookback_days)
     days_seen = (
         db.query(
             func.count(
