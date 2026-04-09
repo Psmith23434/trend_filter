@@ -39,6 +39,15 @@ COLLECTORS = [
     ("COLLECTOR_AMAZON",  "Amazon Suggest",           False),
 ]
 
+# Log lines containing any of these substrings are silently dropped.
+# Keeps the log readable — health-check noise every 3 s is not useful.
+_LOG_SUPPRESS = (
+    '"GET /health ',
+    '"GET /docs',
+    '"GET /openapi',
+    '"HEAD /health',
+)
+
 # Colours
 COL_BG      = "#1a1a2e"
 COL_SURFACE = "#16213e"
@@ -89,7 +98,6 @@ def _write_env(updates: dict):
                 written.add(key)
                 continue
         lines.append(line)
-    # Append any keys not already present
     for k, v in updates.items():
         if k not in written:
             lines.append(f"{k}={v}")
@@ -116,10 +124,9 @@ class TrendFilterApp(tk.Tk):
         self._update_status()
         self._drain_log_queue()
 
-    # ── UI ───────────────────────────────────────────────────────────────────────
+    # ── UI ──────────────────────────────────────────────────────────────────────
 
     def _build_ui(self):
-        # Top bar
         top = tk.Frame(self, bg=COL_SURFACE, pady=8)
         top.pack(fill="x")
         tk.Label(top, text="📡  Trend Filter", font=("Segoe UI", 16, "bold"),
@@ -131,7 +138,6 @@ class TrendFilterApp(tk.Tk):
                                      font=("Segoe UI", 10), bg=COL_SURFACE, fg=COL_MUTED)
         self._status_lbl.pack(side="right", padx=4)
 
-        # Button row
         btn_row = tk.Frame(self, bg=COL_BG, pady=10)
         btn_row.pack(fill="x", padx=16)
         self._btn_start = self._btn(btn_row, "▶  Start Server",   COL_GREEN,  self._start_server)
@@ -151,15 +157,12 @@ class TrendFilterApp(tk.Tk):
                   activebackground=COL_SURFACE, activeforeground=COL_TEXT,
                   command=self._git_pull).pack(side="left", padx=(0, 8))
 
-        # Progress bar (hidden until scan)
         self._progress = ttk.Progressbar(self, mode="indeterminate", length=200)
 
-        # Notebook
         nb = ttk.Notebook(self)
         nb.pack(fill="both", expand=True, padx=16, pady=(0, 12))
         self._style_notebook(nb)
 
-        # Tab 1 — Server Log
         log_frame = tk.Frame(nb, bg=COL_BG)
         nb.add(log_frame, text="  Server Log  ")
         self._log = scrolledtext.ScrolledText(
@@ -176,12 +179,10 @@ class TrendFilterApp(tk.Tk):
                   bg=COL_CARD, fg=COL_MUTED, relief="flat", padx=8, pady=3,
                   cursor="hand2", command=self._clear_log).pack(anchor="e", padx=4, pady=(0, 4))
 
-        # Tab 2 — Collectors
         col_frame = tk.Frame(nb, bg=COL_BG)
         nb.add(col_frame, text="  Collectors  ")
         self._build_collectors_tab(col_frame)
 
-        # Tab 3 — Settings (.env)
         cfg_frame = tk.Frame(nb, bg=COL_BG)
         nb.add(cfg_frame, text="  Settings (.env)  ")
         self._build_settings(cfg_frame)
@@ -216,7 +217,6 @@ class TrendFilterApp(tk.Tk):
         card.pack(fill="x", padx=16, pady=(0, 8))
 
         for env_var, label, default_on in COLLECTORS:
-            # Read current value from .env if present
             raw = env.get(env_var, "true" if default_on else "false").lower()
             current = raw in ("1", "true", "yes")
             var = tk.BooleanVar(value=current)
@@ -236,9 +236,7 @@ class TrendFilterApp(tk.Tk):
             )
             cb.pack(side="left")
 
-            # Badge: ON / OFF
             badge_var = tk.StringVar(value="ON" if current else "OFF")
-            badge_col = tk.StringVar(value=COL_GREEN if current else COL_MUTED)
             badge = tk.Label(row, textvariable=badge_var,
                              font=("Segoe UI", 8, "bold"),
                              bg=COL_CARD, fg=COL_GREEN if current else COL_MUTED,
@@ -253,12 +251,11 @@ class TrendFilterApp(tk.Tk):
                 return _trace
             var.trace_add("write", _make_trace(var, badge_var, badge))
 
-        save_btn = tk.Button(
+        tk.Button(
             parent, text="💾  Save collector settings",
             font=("Segoe UI", 10, "bold"), bg=COL_GREEN, fg="#111",
             relief="flat", padx=14, pady=7, cursor="hand2",
-            command=self._save_collectors)
-        save_btn.pack(anchor="w", padx=16, pady=(4, 0))
+            command=self._save_collectors).pack(anchor="w", padx=16, pady=(4, 0))
 
         tk.Label(parent,
                  text="Changes take effect on the next scan (uvicorn hot-reloads automatically).",
@@ -332,8 +329,12 @@ class TrendFilterApp(tk.Tk):
         threading.Thread(target=self._wait_for_server, daemon=True).start()
 
     def _stream_proc(self, proc):
+        """Stream server stdout → log queue, suppressing noisy health-check lines."""
         for line in iter(proc.stdout.readline, ""):
-            self._log_queue.put((line.rstrip(), "muted"))
+            text = line.rstrip()
+            if any(pat in text for pat in _LOG_SUPPRESS):
+                continue          # silently drop — don't clutter the log
+            self._log_queue.put((text, "muted"))
         self._log_queue.put(("[Server process ended]", "warn"))
         self.after(0, self._update_status)
 
@@ -421,8 +422,8 @@ class TrendFilterApp(tk.Tk):
     # ── Status polling ─────────────────────────────────────────────────────────
 
     def _update_status(self):
-        alive      = _server_alive()
-        proc_up    = self._server_proc and self._server_proc.poll() is None
+        alive   = _server_alive()
+        proc_up = self._server_proc and self._server_proc.poll() is None
         if alive:
             self._status_dot.configure(fg=COL_GREEN)
             self._status_lbl.configure(text="Server: online", fg=COL_GREEN)
@@ -441,7 +442,7 @@ class TrendFilterApp(tk.Tk):
             self._btn_dash.configure(state="disabled")
         self._poll_id = self.after(3000, self._update_status)
 
-    # ── Log ───────────────────────────────────────────────────────────────────────
+    # ── Log ───────────────────────────────────────────────────────────────────
 
     def _drain_log_queue(self):
         try:
