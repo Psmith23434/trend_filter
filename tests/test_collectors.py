@@ -4,6 +4,13 @@ from pipeline.models import RawSignal
 
 REQUIRED_ATTRS = ["title", "text", "url", "source", "engagement"]
 
+# Two fast, always-online feeds used only in tests.
+# Production still uses all 133 DEFAULT_FEEDS unchanged.
+_TEST_RSS_FEEDS = [
+    "https://hnrss.org/frontpage",
+    "https://trends.google.com/trending/rss?geo=US",
+]
+
 
 def _check(signals):
     assert isinstance(signals, list), "collect() must return a list"
@@ -25,8 +32,11 @@ def test_reddit_free_collector():
 
 
 def test_rss_collector():
+    """Pass only 2 fast feeds so this test finishes in <5 s.
+    Full DEFAULT_FEEDS list (133 feeds) is tested in production runs.
+    """
     from collectors.rss import RSSCollector
-    _check(RSSCollector().collect())
+    _check(RSSCollector(feed_urls=_TEST_RSS_FEEDS).collect())
 
 
 def test_github_trending_collector():
