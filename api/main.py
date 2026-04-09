@@ -2,11 +2,13 @@
 from __future__ import annotations
 import os
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Optional
 
 from fastapi import FastAPI, Depends, Query, HTTPException
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 
 from db import get_db, Base, engine
@@ -57,12 +59,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ── Serve dashboard at /dashboard/ ──────────────────────────────────────────────
+_dashboard_dir = Path(__file__).parent.parent / "dashboard"
+if _dashboard_dir.exists():
+    app.mount("/dashboard", StaticFiles(directory=str(_dashboard_dir), html=True), name="dashboard")
+
 
 # ── Status ──────────────────────────────────────────────────────────────────────
 
 @app.get("/")
 def root():
-    return {"status": "ok", "version": "2.0.0", "niches": list(NICHES.keys())}
+    return {
+        "status": "ok",
+        "version": "2.0.0",
+        "niches": list(NICHES.keys()),
+        "dashboard": "/dashboard/",
+    }
 
 
 @app.get("/health")
@@ -102,7 +114,11 @@ def run_scan(
     if save and run_record:
         for trend in results:
             crud.save_trend(db, run_record.id, trend)
-        crud.finish_scan_run(db, run_record.id, signal_count=sum(t.get("signal_count", 1) for t in results), cluster_count=len(results))
+        crud.finish_scan_run(
+            db, run_record.id,
+            signal_count=sum(t.get("signal_count", 1) for t in results),
+            cluster_count=len(results),
+        )
 
     if grouped:
         output: dict = {}
@@ -125,8 +141,10 @@ def get_trends(
     db: Session = Depends(get_db),
 ):
     """Return stored trends from DB with optional filters."""
-    trends = crud.get_trends(db, niche=niche, signal_type=signal_type,
-                             urgency=urgency, limit=limit, since_hours=since_hours)
+    trends = crud.get_trends(
+        db, niche=niche, signal_type=signal_type,
+        urgency=urgency, limit=limit, since_hours=since_hours,
+    )
     return {"count": len(trends), "trends": [
         {
             "id": t.id,
