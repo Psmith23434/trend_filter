@@ -1,0 +1,928 @@
+PS E:\Projects\Trend> pytest tests/ -v
+================================================= test session starts =================================================
+platform win32 -- Python 3.13.7, pytest-9.0.2, pluggy-1.6.0 -- C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\python.exe
+cachedir: .pytest_cache
+rootdir: E:\Projects\Trend
+plugins: anyio-4.13.0
+collected 19 items
+
+tests/test_api.py::test_health_endpoint ERROR                                                                    [  5%]
+tests/test_api.py::test_trends_endpoint_returns_list ERROR                                                       [ 10%]
+tests/test_api.py::test_runs_endpoint_returns_list ERROR                                                         [ 15%]
+tests/test_collectors.py::test_hackernews_collector FAILED                                                       [ 21%]
+tests/test_collectors.py::test_reddit_free_collector FAILED                                                      [ 26%]
+tests/test_collectors.py::test_rss_collector FAILED                                                              [ 31%]
+tests/test_collectors.py::test_github_trending_collector FAILED                                                  [ 36%]
+tests/test_collectors.py::test_amazon_suggest_collector FAILED                                                   [ 42%]
+tests/test_collectors.py::test_youtube_free_collector FAILED                                                     [ 47%]
+tests/test_collectors.py::test_google_trends_collector SKIPPED (pytrends is flaky; skip in CI — fix later)       [ 52%]
+tests/test_pipeline.py::test_normalizer FAILED                                                                   [ 57%]
+tests/test_pipeline.py::test_embedder FAILED                                                                     [ 63%]
+tests/test_pipeline.py::test_clusterer_returns_clusters FAILED                                                   [ 68%]
+tests/test_pipeline.py::test_classifier_assigns_niche FAILED                                                     [ 73%]
+tests/test_scorer.py::test_scorer_returns_all_clusters PASSED                                                    [ 78%]
+tests/test_scorer.py::test_scorer_adds_score_field PASSED                                                        [ 84%]
+tests/test_scorer.py::test_scorer_adds_urgency PASSED                                                            [ 89%]
+tests/test_scorer.py::test_scorer_sorts_descending PASSED                                                        [ 94%]
+tests/test_scorer.py::test_scorer_no_db_uses_placeholder_novelty PASSED                                          [100%]
+
+======================================================= ERRORS ========================================================
+_______________________________________ ERROR at setup of test_health_endpoint ________________________________________
+
+self = <sqlalchemy.engine.base.Connection object at 0x0000023082F02E40>
+engine = Engine(postgresql://postgres:***@localhost:5432/trend_filter), connection = None, _has_events = None
+_allow_revalidate = True, _allow_autobegin = True
+
+    def __init__(
+        self,
+        engine: Engine,
+        connection: Optional[PoolProxiedConnection] = None,
+        _has_events: Optional[bool] = None,
+        _allow_revalidate: bool = True,
+        _allow_autobegin: bool = True,
+    ):
+        """Construct a new Connection."""
+        self.engine = engine
+        self.dialect = dialect = engine.dialect
+
+        if connection is None:
+            try:
+>               self._dbapi_connection = engine.raw_connection()
+                                         ^^^^^^^^^^^^^^^^^^^^^^^
+
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py:143:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py:3317: in raw_connection
+    return self.pool.connect()
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:448: in connect
+    return _ConnectionFairy._checkout(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:1272: in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:712: in checkout
+    rec = pool._do_get()
+          ^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\impl.py:177: in _do_get
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\util\langhelpers.py:121: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\impl.py:175: in _do_get
+    return self._create_connection()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:389: in _create_connection
+    return _ConnectionRecord(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:674: in __init__
+    self.__connect()
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:900: in __connect
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\util\langhelpers.py:121: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:896: in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\create.py:667: in connect
+    return dialect.connect(*cargs_tup, **cparams)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\default.py:630: in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+dsn = 'host=localhost dbname=trend_filter user=postgres password=postgres port=5432', connection_factory = None
+cursor_factory = None
+kwargs = {'dbname': 'trend_filter', 'host': 'localhost', 'password': 'postgres', 'port': 5432, ...}, kwasync = {}
+
+    def connect(dsn=None, connection_factory=None, cursor_factory=None, **kwargs):
+        """
+        Create a new database connection.
+
+        The connection parameters can be specified as a string:
+
+            conn = psycopg2.connect("dbname=test user=postgres password=secret")
+
+        or using a set of keyword arguments:
+
+            conn = psycopg2.connect(database="test", user="postgres", password="secret")
+
+        Or as a mix of both. The basic connection parameters are:
+
+        - *dbname*: the database name
+        - *database*: the database name (only as keyword argument)
+        - *user*: user name used to authenticate
+        - *password*: password used to authenticate
+        - *host*: database host address (defaults to UNIX socket if not provided)
+        - *port*: connection port number (defaults to 5432 if not provided)
+
+        Using the *connection_factory* parameter a different class or connections
+        factory can be specified. It should be a callable object taking a dsn
+        argument.
+
+        Using the *cursor_factory* parameter, a new default cursor factory will be
+        used by cursor().
+
+        Using *async*=True an asynchronous connection will be created. *async_* is
+        a valid alias (for Python versions where ``async`` is a keyword).
+
+        Any other keyword parameter will be passed to the underlying client
+        library: the list of supported parameters depends on the library version.
+
+        """
+        kwasync = {}
+        if 'async' in kwargs:
+            kwasync['async'] = kwargs.pop('async')
+        if 'async_' in kwargs:
+            kwasync['async_'] = kwargs.pop('async_')
+
+        dsn = _ext.make_dsn(dsn, **kwargs)
+>       conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       psycopg2.OperationalError: connection to server at "localhost" (::1), port 5432 failed: Connection refused (0x0000274D/10061)
+E               Is the server running on that host and accepting TCP/IP connections?
+E       connection to server at "localhost" (127.0.0.1), port 5432 failed: Connection refused (0x0000274D/10061)
+E               Is the server running on that host and accepting TCP/IP connections?
+
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\psycopg2\__init__.py:135: OperationalError
+
+The above exception was the direct cause of the following exception:
+
+    @pytest.fixture
+    def client():
+        # Patch DB session so the API starts without a real Postgres connection
+        mock_db = MagicMock()
+        with patch("db.session.SessionLocal", return_value=mock_db):
+            from fastapi.testclient import TestClient
+>           from api.main import app
+
+tests\test_api.py:12:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+api\main.py:17: in <module>
+    Base.metadata.create_all(bind=engine)
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\sql\schema.py:5931: in create_all
+    bind._run_ddl_visitor(
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py:3267: in _run_ddl_visitor
+    with self.begin() as conn:
+         ^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py:3257: in begin
+    with self.connect() as conn:
+         ^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py:3293: in connect
+    return self._connection_cls(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py:145: in __init__
+    Connection._handle_dbapi_exception_noconnection(
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py:2448: in _handle_dbapi_exception_noconnection
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py:143: in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py:3317: in raw_connection
+    return self.pool.connect()
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:448: in connect
+    return _ConnectionFairy._checkout(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:1272: in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:712: in checkout
+    rec = pool._do_get()
+          ^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\impl.py:177: in _do_get
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\util\langhelpers.py:121: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\impl.py:175: in _do_get
+    return self._create_connection()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:389: in _create_connection
+    return _ConnectionRecord(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:674: in __init__
+    self.__connect()
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:900: in __connect
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\util\langhelpers.py:121: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:896: in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\create.py:667: in connect
+    return dialect.connect(*cargs_tup, **cparams)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\default.py:630: in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+dsn = 'host=localhost dbname=trend_filter user=postgres password=postgres port=5432', connection_factory = None
+cursor_factory = None
+kwargs = {'dbname': 'trend_filter', 'host': 'localhost', 'password': 'postgres', 'port': 5432, ...}, kwasync = {}
+
+    def connect(dsn=None, connection_factory=None, cursor_factory=None, **kwargs):
+        """
+        Create a new database connection.
+
+        The connection parameters can be specified as a string:
+
+            conn = psycopg2.connect("dbname=test user=postgres password=secret")
+
+        or using a set of keyword arguments:
+
+            conn = psycopg2.connect(database="test", user="postgres", password="secret")
+
+        Or as a mix of both. The basic connection parameters are:
+
+        - *dbname*: the database name
+        - *database*: the database name (only as keyword argument)
+        - *user*: user name used to authenticate
+        - *password*: password used to authenticate
+        - *host*: database host address (defaults to UNIX socket if not provided)
+        - *port*: connection port number (defaults to 5432 if not provided)
+
+        Using the *connection_factory* parameter a different class or connections
+        factory can be specified. It should be a callable object taking a dsn
+        argument.
+
+        Using the *cursor_factory* parameter, a new default cursor factory will be
+        used by cursor().
+
+        Using *async*=True an asynchronous connection will be created. *async_* is
+        a valid alias (for Python versions where ``async`` is a keyword).
+
+        Any other keyword parameter will be passed to the underlying client
+        library: the list of supported parameters depends on the library version.
+
+        """
+        kwasync = {}
+        if 'async' in kwargs:
+            kwasync['async'] = kwargs.pop('async')
+        if 'async_' in kwargs:
+            kwasync['async_'] = kwargs.pop('async_')
+
+        dsn = _ext.make_dsn(dsn, **kwargs)
+>       conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       sqlalchemy.exc.OperationalError: (psycopg2.OperationalError) connection to server at "localhost" (::1), port 5432 failed: Connection refused (0x0000274D/10061)
+E               Is the server running on that host and accepting TCP/IP connections?
+E       connection to server at "localhost" (127.0.0.1), port 5432 failed: Connection refused (0x0000274D/10061)
+E               Is the server running on that host and accepting TCP/IP connections?
+E
+E       (Background on this error at: https://sqlalche.me/e/20/e3q8)
+
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\psycopg2\__init__.py:135: OperationalError
+_________________________________ ERROR at setup of test_trends_endpoint_returns_list _________________________________
+
+self = <sqlalchemy.engine.base.Connection object at 0x0000023082F5AFD0>
+engine = Engine(postgresql://postgres:***@localhost:5432/trend_filter), connection = None, _has_events = None
+_allow_revalidate = True, _allow_autobegin = True
+
+    def __init__(
+        self,
+        engine: Engine,
+        connection: Optional[PoolProxiedConnection] = None,
+        _has_events: Optional[bool] = None,
+        _allow_revalidate: bool = True,
+        _allow_autobegin: bool = True,
+    ):
+        """Construct a new Connection."""
+        self.engine = engine
+        self.dialect = dialect = engine.dialect
+
+        if connection is None:
+            try:
+>               self._dbapi_connection = engine.raw_connection()
+                                         ^^^^^^^^^^^^^^^^^^^^^^^
+
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py:143:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py:3317: in raw_connection
+    return self.pool.connect()
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:448: in connect
+    return _ConnectionFairy._checkout(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:1272: in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:712: in checkout
+    rec = pool._do_get()
+          ^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\impl.py:177: in _do_get
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\util\langhelpers.py:121: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\impl.py:175: in _do_get
+    return self._create_connection()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:389: in _create_connection
+    return _ConnectionRecord(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:674: in __init__
+    self.__connect()
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:900: in __connect
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\util\langhelpers.py:121: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:896: in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\create.py:667: in connect
+    return dialect.connect(*cargs_tup, **cparams)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\default.py:630: in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+dsn = 'host=localhost dbname=trend_filter user=postgres password=postgres port=5432', connection_factory = None
+cursor_factory = None
+kwargs = {'dbname': 'trend_filter', 'host': 'localhost', 'password': 'postgres', 'port': 5432, ...}, kwasync = {}
+
+    def connect(dsn=None, connection_factory=None, cursor_factory=None, **kwargs):
+        """
+        Create a new database connection.
+
+        The connection parameters can be specified as a string:
+
+            conn = psycopg2.connect("dbname=test user=postgres password=secret")
+
+        or using a set of keyword arguments:
+
+            conn = psycopg2.connect(database="test", user="postgres", password="secret")
+
+        Or as a mix of both. The basic connection parameters are:
+
+        - *dbname*: the database name
+        - *database*: the database name (only as keyword argument)
+        - *user*: user name used to authenticate
+        - *password*: password used to authenticate
+        - *host*: database host address (defaults to UNIX socket if not provided)
+        - *port*: connection port number (defaults to 5432 if not provided)
+
+        Using the *connection_factory* parameter a different class or connections
+        factory can be specified. It should be a callable object taking a dsn
+        argument.
+
+        Using the *cursor_factory* parameter, a new default cursor factory will be
+        used by cursor().
+
+        Using *async*=True an asynchronous connection will be created. *async_* is
+        a valid alias (for Python versions where ``async`` is a keyword).
+
+        Any other keyword parameter will be passed to the underlying client
+        library: the list of supported parameters depends on the library version.
+
+        """
+        kwasync = {}
+        if 'async' in kwargs:
+            kwasync['async'] = kwargs.pop('async')
+        if 'async_' in kwargs:
+            kwasync['async_'] = kwargs.pop('async_')
+
+        dsn = _ext.make_dsn(dsn, **kwargs)
+>       conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       psycopg2.OperationalError: connection to server at "localhost" (::1), port 5432 failed: Connection refused (0x0000274D/10061)
+E               Is the server running on that host and accepting TCP/IP connections?
+E       connection to server at "localhost" (127.0.0.1), port 5432 failed: Connection refused (0x0000274D/10061)
+E               Is the server running on that host and accepting TCP/IP connections?
+
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\psycopg2\__init__.py:135: OperationalError
+
+The above exception was the direct cause of the following exception:
+
+    @pytest.fixture
+    def client():
+        # Patch DB session so the API starts without a real Postgres connection
+        mock_db = MagicMock()
+        with patch("db.session.SessionLocal", return_value=mock_db):
+            from fastapi.testclient import TestClient
+>           from api.main import app
+
+tests\test_api.py:12:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+api\main.py:17: in <module>
+    Base.metadata.create_all(bind=engine)
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\sql\schema.py:5931: in create_all
+    bind._run_ddl_visitor(
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py:3267: in _run_ddl_visitor
+    with self.begin() as conn:
+         ^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py:3257: in begin
+    with self.connect() as conn:
+         ^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py:3293: in connect
+    return self._connection_cls(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py:145: in __init__
+    Connection._handle_dbapi_exception_noconnection(
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py:2448: in _handle_dbapi_exception_noconnection
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py:143: in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py:3317: in raw_connection
+    return self.pool.connect()
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:448: in connect
+    return _ConnectionFairy._checkout(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:1272: in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:712: in checkout
+    rec = pool._do_get()
+          ^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\impl.py:177: in _do_get
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\util\langhelpers.py:121: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\impl.py:175: in _do_get
+    return self._create_connection()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:389: in _create_connection
+    return _ConnectionRecord(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:674: in __init__
+    self.__connect()
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:900: in __connect
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\util\langhelpers.py:121: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:896: in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\create.py:667: in connect
+    return dialect.connect(*cargs_tup, **cparams)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\default.py:630: in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+dsn = 'host=localhost dbname=trend_filter user=postgres password=postgres port=5432', connection_factory = None
+cursor_factory = None
+kwargs = {'dbname': 'trend_filter', 'host': 'localhost', 'password': 'postgres', 'port': 5432, ...}, kwasync = {}
+
+    def connect(dsn=None, connection_factory=None, cursor_factory=None, **kwargs):
+        """
+        Create a new database connection.
+
+        The connection parameters can be specified as a string:
+
+            conn = psycopg2.connect("dbname=test user=postgres password=secret")
+
+        or using a set of keyword arguments:
+
+            conn = psycopg2.connect(database="test", user="postgres", password="secret")
+
+        Or as a mix of both. The basic connection parameters are:
+
+        - *dbname*: the database name
+        - *database*: the database name (only as keyword argument)
+        - *user*: user name used to authenticate
+        - *password*: password used to authenticate
+        - *host*: database host address (defaults to UNIX socket if not provided)
+        - *port*: connection port number (defaults to 5432 if not provided)
+
+        Using the *connection_factory* parameter a different class or connections
+        factory can be specified. It should be a callable object taking a dsn
+        argument.
+
+        Using the *cursor_factory* parameter, a new default cursor factory will be
+        used by cursor().
+
+        Using *async*=True an asynchronous connection will be created. *async_* is
+        a valid alias (for Python versions where ``async`` is a keyword).
+
+        Any other keyword parameter will be passed to the underlying client
+        library: the list of supported parameters depends on the library version.
+
+        """
+        kwasync = {}
+        if 'async' in kwargs:
+            kwasync['async'] = kwargs.pop('async')
+        if 'async_' in kwargs:
+            kwasync['async_'] = kwargs.pop('async_')
+
+        dsn = _ext.make_dsn(dsn, **kwargs)
+>       conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       sqlalchemy.exc.OperationalError: (psycopg2.OperationalError) connection to server at "localhost" (::1), port 5432 failed: Connection refused (0x0000274D/10061)
+E               Is the server running on that host and accepting TCP/IP connections?
+E       connection to server at "localhost" (127.0.0.1), port 5432 failed: Connection refused (0x0000274D/10061)
+E               Is the server running on that host and accepting TCP/IP connections?
+E
+E       (Background on this error at: https://sqlalche.me/e/20/e3q8)
+
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\psycopg2\__init__.py:135: OperationalError
+__________________________________ ERROR at setup of test_runs_endpoint_returns_list __________________________________
+
+self = <sqlalchemy.engine.base.Connection object at 0x0000023083CD4050>
+engine = Engine(postgresql://postgres:***@localhost:5432/trend_filter), connection = None, _has_events = None
+_allow_revalidate = True, _allow_autobegin = True
+
+    def __init__(
+        self,
+        engine: Engine,
+        connection: Optional[PoolProxiedConnection] = None,
+        _has_events: Optional[bool] = None,
+        _allow_revalidate: bool = True,
+        _allow_autobegin: bool = True,
+    ):
+        """Construct a new Connection."""
+        self.engine = engine
+        self.dialect = dialect = engine.dialect
+
+        if connection is None:
+            try:
+>               self._dbapi_connection = engine.raw_connection()
+                                         ^^^^^^^^^^^^^^^^^^^^^^^
+
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py:143:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py:3317: in raw_connection
+    return self.pool.connect()
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:448: in connect
+    return _ConnectionFairy._checkout(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:1272: in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:712: in checkout
+    rec = pool._do_get()
+          ^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\impl.py:177: in _do_get
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\util\langhelpers.py:121: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\impl.py:175: in _do_get
+    return self._create_connection()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:389: in _create_connection
+    return _ConnectionRecord(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:674: in __init__
+    self.__connect()
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:900: in __connect
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\util\langhelpers.py:121: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:896: in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\create.py:667: in connect
+    return dialect.connect(*cargs_tup, **cparams)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\default.py:630: in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+dsn = 'host=localhost dbname=trend_filter user=postgres password=postgres port=5432', connection_factory = None
+cursor_factory = None
+kwargs = {'dbname': 'trend_filter', 'host': 'localhost', 'password': 'postgres', 'port': 5432, ...}, kwasync = {}
+
+    def connect(dsn=None, connection_factory=None, cursor_factory=None, **kwargs):
+        """
+        Create a new database connection.
+
+        The connection parameters can be specified as a string:
+
+            conn = psycopg2.connect("dbname=test user=postgres password=secret")
+
+        or using a set of keyword arguments:
+
+            conn = psycopg2.connect(database="test", user="postgres", password="secret")
+
+        Or as a mix of both. The basic connection parameters are:
+
+        - *dbname*: the database name
+        - *database*: the database name (only as keyword argument)
+        - *user*: user name used to authenticate
+        - *password*: password used to authenticate
+        - *host*: database host address (defaults to UNIX socket if not provided)
+        - *port*: connection port number (defaults to 5432 if not provided)
+
+        Using the *connection_factory* parameter a different class or connections
+        factory can be specified. It should be a callable object taking a dsn
+        argument.
+
+        Using the *cursor_factory* parameter, a new default cursor factory will be
+        used by cursor().
+
+        Using *async*=True an asynchronous connection will be created. *async_* is
+        a valid alias (for Python versions where ``async`` is a keyword).
+
+        Any other keyword parameter will be passed to the underlying client
+        library: the list of supported parameters depends on the library version.
+
+        """
+        kwasync = {}
+        if 'async' in kwargs:
+            kwasync['async'] = kwargs.pop('async')
+        if 'async_' in kwargs:
+            kwasync['async_'] = kwargs.pop('async_')
+
+        dsn = _ext.make_dsn(dsn, **kwargs)
+>       conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       psycopg2.OperationalError: connection to server at "localhost" (::1), port 5432 failed: Connection refused (0x0000274D/10061)
+E               Is the server running on that host and accepting TCP/IP connections?
+E       connection to server at "localhost" (127.0.0.1), port 5432 failed: Connection refused (0x0000274D/10061)
+E               Is the server running on that host and accepting TCP/IP connections?
+
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\psycopg2\__init__.py:135: OperationalError
+
+The above exception was the direct cause of the following exception:
+
+    @pytest.fixture
+    def client():
+        # Patch DB session so the API starts without a real Postgres connection
+        mock_db = MagicMock()
+        with patch("db.session.SessionLocal", return_value=mock_db):
+            from fastapi.testclient import TestClient
+>           from api.main import app
+
+tests\test_api.py:12:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+api\main.py:17: in <module>
+    Base.metadata.create_all(bind=engine)
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\sql\schema.py:5931: in create_all
+    bind._run_ddl_visitor(
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py:3267: in _run_ddl_visitor
+    with self.begin() as conn:
+         ^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py:3257: in begin
+    with self.connect() as conn:
+         ^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py:3293: in connect
+    return self._connection_cls(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py:145: in __init__
+    Connection._handle_dbapi_exception_noconnection(
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py:2448: in _handle_dbapi_exception_noconnection
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py:143: in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py:3317: in raw_connection
+    return self.pool.connect()
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:448: in connect
+    return _ConnectionFairy._checkout(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:1272: in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:712: in checkout
+    rec = pool._do_get()
+          ^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\impl.py:177: in _do_get
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\util\langhelpers.py:121: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\impl.py:175: in _do_get
+    return self._create_connection()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:389: in _create_connection
+    return _ConnectionRecord(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:674: in __init__
+    self.__connect()
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:900: in __connect
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\util\langhelpers.py:121: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\pool\base.py:896: in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\create.py:667: in connect
+    return dialect.connect(*cargs_tup, **cparams)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\default.py:630: in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+dsn = 'host=localhost dbname=trend_filter user=postgres password=postgres port=5432', connection_factory = None
+cursor_factory = None
+kwargs = {'dbname': 'trend_filter', 'host': 'localhost', 'password': 'postgres', 'port': 5432, ...}, kwasync = {}
+
+    def connect(dsn=None, connection_factory=None, cursor_factory=None, **kwargs):
+        """
+        Create a new database connection.
+
+        The connection parameters can be specified as a string:
+
+            conn = psycopg2.connect("dbname=test user=postgres password=secret")
+
+        or using a set of keyword arguments:
+
+            conn = psycopg2.connect(database="test", user="postgres", password="secret")
+
+        Or as a mix of both. The basic connection parameters are:
+
+        - *dbname*: the database name
+        - *database*: the database name (only as keyword argument)
+        - *user*: user name used to authenticate
+        - *password*: password used to authenticate
+        - *host*: database host address (defaults to UNIX socket if not provided)
+        - *port*: connection port number (defaults to 5432 if not provided)
+
+        Using the *connection_factory* parameter a different class or connections
+        factory can be specified. It should be a callable object taking a dsn
+        argument.
+
+        Using the *cursor_factory* parameter, a new default cursor factory will be
+        used by cursor().
+
+        Using *async*=True an asynchronous connection will be created. *async_* is
+        a valid alias (for Python versions where ``async`` is a keyword).
+
+        Any other keyword parameter will be passed to the underlying client
+        library: the list of supported parameters depends on the library version.
+
+        """
+        kwasync = {}
+        if 'async' in kwargs:
+            kwasync['async'] = kwargs.pop('async')
+        if 'async_' in kwargs:
+            kwasync['async_'] = kwargs.pop('async_')
+
+        dsn = _ext.make_dsn(dsn, **kwargs)
+>       conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       sqlalchemy.exc.OperationalError: (psycopg2.OperationalError) connection to server at "localhost" (::1), port 5432 failed: Connection refused (0x0000274D/10061)
+E               Is the server running on that host and accepting TCP/IP connections?
+E       connection to server at "localhost" (127.0.0.1), port 5432 failed: Connection refused (0x0000274D/10061)
+E               Is the server running on that host and accepting TCP/IP connections?
+E
+E       (Background on this error at: https://sqlalche.me/e/20/e3q8)
+
+C:\Users\Ryzen\AppData\Local\Programs\Python\Python313\Lib\site-packages\psycopg2\__init__.py:135: OperationalError
+====================================================== FAILURES =======================================================
+______________________________________________ test_hackernews_collector ______________________________________________
+
+    def test_hackernews_collector():
+>       from collectors.hackernews import collect
+E       ImportError: cannot import name 'collect' from 'collectors.hackernews' (E:\Projects\Trend\collectors\hackernews.py)
+
+tests\test_collectors.py:16: ImportError
+_____________________________________________ test_reddit_free_collector ______________________________________________
+
+    def test_reddit_free_collector():
+>       from collectors.reddit_free import collect
+E       ImportError: cannot import name 'collect' from 'collectors.reddit_free' (E:\Projects\Trend\collectors\reddit_free.py)
+
+tests\test_collectors.py:21: ImportError
+_________________________________________________ test_rss_collector __________________________________________________
+
+    def test_rss_collector():
+>       from collectors.rss import collect
+E       ImportError: cannot import name 'collect' from 'collectors.rss' (E:\Projects\Trend\collectors\rss.py)
+
+tests\test_collectors.py:26: ImportError
+___________________________________________ test_github_trending_collector ____________________________________________
+
+    def test_github_trending_collector():
+>       from collectors.github_trending import collect
+E       ImportError: cannot import name 'collect' from 'collectors.github_trending' (E:\Projects\Trend\collectors\github_trending.py)
+
+tests\test_collectors.py:31: ImportError
+____________________________________________ test_amazon_suggest_collector ____________________________________________
+
+    def test_amazon_suggest_collector():
+>       from collectors.amazon_suggest import collect
+E       ImportError: cannot import name 'collect' from 'collectors.amazon_suggest' (E:\Projects\Trend\collectors\amazon_suggest.py)
+
+tests\test_collectors.py:36: ImportError
+_____________________________________________ test_youtube_free_collector _____________________________________________
+
+    def test_youtube_free_collector():
+>       from collectors.youtube_free import collect
+E       ImportError: cannot import name 'collect' from 'collectors.youtube_free' (E:\Projects\Trend\collectors\youtube_free.py)
+
+tests\test_collectors.py:41: ImportError
+___________________________________________________ test_normalizer ___________________________________________________
+
+    def test_normalizer():
+        from pipeline.normalizer import normalize
+>       signals = normalize(SAMPLE_RAW)
+                  ^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_pipeline.py:20:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signals = [{'engagement': 200, 'meta': {}, 'published_at': None, 'source': 'reddit', ...}, {'engagement': 150, 'meta': {}, 'publ...None, 'source': 'hackernews', ...}, {'engagement': 400, 'meta': {}, 'published_at': None, 'source': 'hackernews', ...}]
+
+    def normalize(signals: List[RawSignal]) -> List[RawSignal]:
+        for s in signals:
+>           s.title = clean_text(s.title)
+                                 ^^^^^^^
+E           AttributeError: 'dict' object has no attribute 'title'
+
+pipeline\normalizer.py:25: AttributeError
+____________________________________________________ test_embedder ____________________________________________________
+
+    def test_embedder():
+        from pipeline.normalizer import normalize
+        from pipeline.embedder import embed_signals
+>       signals = normalize(SAMPLE_RAW)
+                  ^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_pipeline.py:31:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signals = [{'engagement': 200, 'meta': {}, 'published_at': None, 'source': 'reddit', ...}, {'engagement': 150, 'meta': {}, 'publ...None, 'source': 'hackernews', ...}, {'engagement': 400, 'meta': {}, 'published_at': None, 'source': 'hackernews', ...}]
+
+    def normalize(signals: List[RawSignal]) -> List[RawSignal]:
+        for s in signals:
+>           s.title = clean_text(s.title)
+                                 ^^^^^^^
+E           AttributeError: 'dict' object has no attribute 'title'
+
+pipeline\normalizer.py:25: AttributeError
+___________________________________________ test_clusterer_returns_clusters ___________________________________________
+
+    def test_clusterer_returns_clusters():
+        from pipeline.normalizer import normalize
+        from pipeline.embedder import embed_signals
+        from pipeline.clusterer import cluster_signals
+>       signals = normalize(SAMPLE_RAW)
+                  ^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_pipeline.py:42:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signals = [{'engagement': 200, 'meta': {}, 'published_at': None, 'source': 'reddit', ...}, {'engagement': 150, 'meta': {}, 'publ...None, 'source': 'hackernews', ...}, {'engagement': 400, 'meta': {}, 'published_at': None, 'source': 'hackernews', ...}]
+
+    def normalize(signals: List[RawSignal]) -> List[RawSignal]:
+        for s in signals:
+>           s.title = clean_text(s.title)
+                                 ^^^^^^^
+E           AttributeError: 'dict' object has no attribute 'title'
+
+pipeline\normalizer.py:25: AttributeError
+____________________________________________ test_classifier_assigns_niche ____________________________________________
+
+    def test_classifier_assigns_niche():
+        from pipeline.normalizer import normalize
+        from pipeline.embedder import embed_signals
+        from pipeline.clusterer import cluster_signals
+        from pipeline.classifier import classify_clusters
+>       signals = normalize(SAMPLE_RAW)
+                  ^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_pipeline.py:58:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signals = [{'engagement': 200, 'meta': {}, 'published_at': None, 'source': 'reddit', ...}, {'engagement': 150, 'meta': {}, 'publ...None, 'source': 'hackernews', ...}, {'engagement': 400, 'meta': {}, 'published_at': None, 'source': 'hackernews', ...}]
+
+    def normalize(signals: List[RawSignal]) -> List[RawSignal]:
+        for s in signals:
+>           s.title = clean_text(s.title)
+                                 ^^^^^^^
+E           AttributeError: 'dict' object has no attribute 'title'
+
+pipeline\normalizer.py:25: AttributeError
+=============================================== short test summary info ===============================================
+FAILED tests/test_collectors.py::test_hackernews_collector - ImportError: cannot import name 'collect' from 'collectors.hackernews' (E:\Projects\Trend\collectors\hackernews.py)
+FAILED tests/test_collectors.py::test_reddit_free_collector - ImportError: cannot import name 'collect' from 'collectors.reddit_free' (E:\Projects\Trend\collectors\reddit_free.py)
+FAILED tests/test_collectors.py::test_rss_collector - ImportError: cannot import name 'collect' from 'collectors.rss' (E:\Projects\Trend\collectors\rss.py)
+FAILED tests/test_collectors.py::test_github_trending_collector - ImportError: cannot import name 'collect' from 'collectors.github_trending' (E:\Projects\Trend\collectors\github_tr...
+FAILED tests/test_collectors.py::test_amazon_suggest_collector - ImportError: cannot import name 'collect' from 'collectors.amazon_suggest' (E:\Projects\Trend\collectors\amazon_sug...
+FAILED tests/test_collectors.py::test_youtube_free_collector - ImportError: cannot import name 'collect' from 'collectors.youtube_free' (E:\Projects\Trend\collectors\youtube_free...
+FAILED tests/test_pipeline.py::test_normalizer - AttributeError: 'dict' object has no attribute 'title'
+FAILED tests/test_pipeline.py::test_embedder - AttributeError: 'dict' object has no attribute 'title'
+FAILED tests/test_pipeline.py::test_clusterer_returns_clusters - AttributeError: 'dict' object has no attribute 'title'
+FAILED tests/test_pipeline.py::test_classifier_assigns_niche - AttributeError: 'dict' object has no attribute 'title'
+ERROR tests/test_api.py::test_health_endpoint - sqlalchemy.exc.OperationalError: (psycopg2.OperationalError) connection to server at "localhost" (::1), port 5432 f...
+ERROR tests/test_api.py::test_trends_endpoint_returns_list - sqlalchemy.exc.OperationalError: (psycopg2.OperationalError) connection to server at "localhost" (::1), port 5432 f...
+ERROR tests/test_api.py::test_runs_endpoint_returns_list - sqlalchemy.exc.OperationalError: (psycopg2.OperationalError) connection to server at "localhost" (::1), port 5432 f...
+================================= 10 failed, 5 passed, 1 skipped, 3 errors in 20.59s ==================================
