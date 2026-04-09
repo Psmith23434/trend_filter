@@ -19,7 +19,6 @@ DEFAULT_FEEDS = [
     "https://venturebeat.com/feed",
     "https://www.zdnet.com/news/rss.xml",
     "https://www.techradar.com/rss",
-    # AI-specific
     "https://openai.com/news/rss.xml",
     "https://huggingface.co/blog/feed.xml",
     "https://blog.google/technology/ai/rss/",
@@ -113,13 +112,13 @@ DEFAULT_FEEDS = [
     # -------------------------------------------------------------------------
     # DIGITAL PRODUCTS / KDP / COURSES / TEMPLATES  (7 feeds)
     # -------------------------------------------------------------------------
-    "https://kdp.amazon.com/en_US/help/topic/G200635650",
     "https://selfpublishingadvice.org/feed/",
     "https://thecreatorseries.substack.com/feed",
     "https://www.thinkific.com/blog/feed/",
     "https://www.teachable.com/blog/feed",
     "https://www.podia.com/articles/feed",
     "https://convertkit.com/newsletter/feed",
+    "https://www.publishingperspectives.com/feed/",
 
     # -------------------------------------------------------------------------
     # SEO / SEARCH / KEYWORD TRENDS  (8 feeds)
@@ -134,23 +133,52 @@ DEFAULT_FEEDS = [
     "https://backlinko.com/blog/rss",
 
     # -------------------------------------------------------------------------
-    # TRENDING / VIRAL / GENERAL NEWS  (12 feeds)
+    # TRENDING / GENERAL NEWS  (35 feeds)
     # -------------------------------------------------------------------------
+    # Google Trends RSS (official, multiple geos)
     "https://trends.google.com/trending/rss?geo=US",
     "https://trends.google.com/trending/rss?geo=GB",
     "https://trends.google.com/trending/rss?geo=DE",
+    "https://trends.google.com/trending/rss?geo=AU",
+    "https://trends.google.com/trending/rss?geo=CA",
+    # Major wire services
+    "https://feeds.reuters.com/reuters/businessNews",
+    "https://feeds.reuters.com/reuters/technologyNews",
+    "https://www.apnews.com/rss",
+    "https://feeds.skynews.com/feeds/rss/world.xml",
+    "https://feeds.skynews.com/feeds/rss/business.xml",
+    # US news & business
     "https://feeds.bbci.co.uk/news/business/rss.xml",
     "https://feeds.bbci.co.uk/news/technology/rss.xml",
+    "https://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml",
     "https://rss.nytimes.com/services/xml/rss/nyt/Business.xml",
     "https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml",
+    "https://rss.nytimes.com/services/xml/rss/nyt/Upshot.xml",
     "https://www.fastcompany.com/rss",
     "https://www.forbes.com/innovation/feed2",
-    "https://mashable.com/feeds/rss/all",
     "https://feeds.a.dj.com/rss/RSSMarketsMain.xml",
     "https://feeds.finance.yahoo.com/rss/2.0/headline",
+    # Pop culture / viral / lifestyle
+    "https://mashable.com/feeds/rss/all",
+    "https://www.buzzfeed.com/index.xml",
+    "https://lifehacker.com/rss",
+    "https://gizmodo.com/rss",
+    "https://www.vice.com/en/rss",
+    "https://bbc.com/culture/feed.rss",
+    "https://www.rollingstone.com/feed/",
+    # Business / economy signals
+    "https://hbr.org/feed",
+    "https://www.businessinsider.com/rss",
+    "https://qz.com/rss",
+    "https://www.economist.com/finance-and-economics/rss.xml",
+    # Emerging / niche trend sites
+    "https://explodingtopics.com/blog/feed",
+    "https://marketingagent.blog/feed",
+    "https://www.springwise.com/feed/",
+    "https://trendwatching.com/feed/",
 
     # -------------------------------------------------------------------------
-    # CRYPTO / WEB3 / FINTECH (bonus signals for digital product trends)  (6 feeds)
+    # CRYPTO / WEB3 / FINTECH  (6 feeds)
     # -------------------------------------------------------------------------
     "https://cointelegraph.com/rss",
     "https://decrypt.co/feed",
@@ -160,7 +188,7 @@ DEFAULT_FEEDS = [
     "https://www.pymnts.com/feed/",
 
     # -------------------------------------------------------------------------
-    # REDDIT (public RSS — cross-confirms reddit_free collector)  (15 feeds)
+    # REDDIT public RSS  (15 feeds)
     # -------------------------------------------------------------------------
     "https://www.reddit.com/r/entrepreneur/.rss",
     "https://www.reddit.com/r/SideProject/.rss",
